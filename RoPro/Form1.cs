@@ -32,29 +32,47 @@ namespace RoPro
 
             LoadSamples();
         }
-        imageAndText[] znaki;
+       List< imageAndText> znaki;
         void LoadSamples()
         {
             DirectoryInfo imagesDir = project.GetDirectories().Where(
                 (DirectoryInfo dir) => dir.Name == "ро").First();
 
             var files = imagesDir.GetFiles();
-            znaki = new imageAndText[files.Length / 2 + 1];
+            znaki = new List<imageAndText>();
+            Dictionary<int, string> texts = new Dictionary<int, string>();
             foreach (var file in files)
             {
                 string name = ((string)file.Name.Clone()).Replace(file.Extension, "");
                 int i;
-                int.TryParse(file.Name.Split('.')[0], out i);
+                if (!int.TryParse(file.Name.Split('.')[0], out i))
+                    continue;
                 if (file.Extension == ".txt")
                 {
                     StreamReader sr = file.OpenText();
-                    znaki[i].text = sr.ReadToEnd();
-                }
-                else
+                    var txt = sr.ReadToEnd();
+                    texts.Add(i, txt);
+                }              
+            }
+
+
+            foreach (var file in files)
+            {
+                string name = ((string)file.Name.Clone()).Replace(file.Extension, "");
+                int i;
+                if (!int.TryParse(file.Name.Split('.')[0], out i))
+                    continue;
+                if (file.Extension != ".txt")
                 {
+               
                     try
                     {
-                        znaki[i].image = new Image<Rgb, byte>(file.FullName);
+                        znaki.Add(new imageAndText()
+                        {
+                            image =  new Image<Rgb, byte>(file.FullName),
+                            text = texts[i]
+                        });
+                       
                     }
                     catch (Exception ex)
                     {
@@ -77,7 +95,7 @@ namespace RoPro
                 int min_i = -1;
                 MyDetector md = new MyDetector();
                 double min_dist = 10;
-                for (int i = 1; i < znaki.Length; i++)
+                for (int i = 1; i < znaki.Count; i++)
                 {
                     var dist = md.dist2(image, znaki[i].image);
                     if (dist < min_dist)

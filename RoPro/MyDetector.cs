@@ -27,7 +27,7 @@ namespace RoPro
         /// <summary>
         /// Размер картинки для сравнения
         /// </summary>
-        const int size = 50;
+        const int size = 200;
         /// <summary>
         /// Предобработка картинки
         /// 1)преобразуем в серый
